@@ -29,28 +29,34 @@ class Polynomial {
         copy(c.begin(), c.end(), coefs);
     }
 
-    double &coef(int i) {
+
+    double &coef(int i) const {
         return coefs[i];
     }
 
-    int get_deg() {
+    int get_deg() const {
         return deg;
     }
 
-    double value(double x) {
+    double value(double x) const {
         double result = 0;
         for (int i = 0; i <= deg; i++) {
-            result += coefs[i] * pow(10, i);
+            result += coefs[i] * pow(x, i);
         }
         return result;
     }
 
-    Polynomial(Polynomial &x) { //Конструктор копирования
+    Polynomial(const Polynomial &x) { //Конструктор копирования
         deg = x.deg;
         coefs = new double[deg+1];
         for (int i = 0; i <= deg; i++) {
             coefs[i] = x.coefs[i];
         }
+    }
+
+    Polynomial(Polynomial &&p): deg(p.deg), coefs(p.coefs) {
+        p.coefs = nullptr;        
+        p.deg = 0;
     }
 
     Polynomial & operator=(const Polynomial & p) {
@@ -64,10 +70,29 @@ class Polynomial {
         return *this;
     }
 
-    double & operator[] (int i) {
+    Polynomial & operator=(Polynomial &&p) {
+        if (this == &p) return *this;
+        delete[] coefs;
+        deg = p.deg;
+        coefs = p.coefs;
+        p.coefs = nullptr;
+        p.deg = 0;
+        return *this;
+    }
+
+    double & operator[] (int i) const {
        static double c = -1;
        if (i >= 0 && i <= deg) return coefs[i];
        else return c;
+    }
+
+    double operator() (double x) const {
+        double result = 0;
+        for (int i = 0; i <= deg; i++) {
+            result += coefs[i] * pow(x, i);
+        }
+        return result;
+
     }
 
     ~Polynomial() {
@@ -76,7 +101,7 @@ class Polynomial {
 
 };
 
-Polynomial operator+(Polynomial &x, Polynomial &y) {
+Polynomial operator+(const Polynomial &x,const Polynomial &y) {
     Polynomial result, p_max_deg, p_min_deg;
     if (x.get_deg() <= y.get_deg()) {
         p_max_deg = y;
@@ -95,7 +120,7 @@ Polynomial operator+(Polynomial &x, Polynomial &y) {
 }
 
 
-Polynomial operator-(Polynomial &x, Polynomial &y) {
+Polynomial operator-(const Polynomial &x, const Polynomial &y) {
     Polynomial result, p_max_deg, p_min_deg;
     int sign;
     if (x.get_deg() <= y.get_deg()) {
@@ -116,7 +141,7 @@ Polynomial operator-(Polynomial &x, Polynomial &y) {
     return result;
 }
 
-Polynomial operator*(Polynomial &x, Polynomial &y) {
+Polynomial operator*(const Polynomial &x, const Polynomial &y) {
     Polynomial result;
     double *coef = new double[x.get_deg() + y.get_deg() + 1];
     double a;
@@ -159,7 +184,7 @@ int main() {
     Polynomial x(2);
     Polynomial y {1, 2, 3};
     Polynomial z;
-    cin >> z;
-    cout << z;
+    Polynomial t(move(x+y));
+    cout << t(1);
     return EXIT_SUCCESS;
 }

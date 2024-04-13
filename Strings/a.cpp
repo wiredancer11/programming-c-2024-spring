@@ -91,7 +91,6 @@ string replace_sums(string s) {
 
 int main() {
     string s, sub_s;
-    cin >> s;
-    cout << replace_sums(s);
-    return EXIT_SUCCESS;
-}
+    cout << replace_sums("5+26-72+35gh32+45");
+    return EXIT_SUCCESS;;
+};
